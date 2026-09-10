@@ -1,0 +1,5 @@
+{
+  "server": "https://ntfy.sh",
+  "topic": "<replace-with-a-random-private-topic>",
+  "minDurationMs": 60000
+}

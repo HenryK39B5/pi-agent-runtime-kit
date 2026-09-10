@@ -1,0 +1,11 @@
+{
+  "theme": "auren-dark",
+  "tuiMode": "fullscreen",
+  "defaultTools": [
+    "read",
+    "powershell",
+    "edit",
+    "write"
+  ],
+  "shellPath": "C:/Program Files/Git/bin/bash.exe"
+}

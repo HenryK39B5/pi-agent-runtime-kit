@@ -1,0 +1,33 @@
+# Dependencies and build output
+node_modules/
+dist/
+coverage/
+.tmp/
+tmp/
+
+# Runtime state and sessions
+.pi/
+state/
+sessions/
+*.jsonl
+
+# Credentials and private local configuration
+.env
+.env.*
+!.env.example
+auth.json
+ntfy.json
+servers.ts
+/extensions/constrained-mcp/index.ts
+config.local.ts
+*.key
+*.pem
+*.pfx
+*.p12
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

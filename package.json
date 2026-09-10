@@ -1,0 +1,24 @@
+{
+  "name": "pi-agent-runtime-kit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Agent-assisted reference kit for a lightweight, observable Pi runtime",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "test": "node scripts/run-tests.mjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "validate:theme": "node scripts/validate-theme.mjs",
+    "audit:public": "node scripts/audit-public-tree.mjs",
+    "validate": "npm test && npm run typecheck && npm run validate:theme && npm run audit:public"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "0.85.1",
+    "@earendil-works/pi-tui": "0.85.1",
+    "@types/node": "22.19.19",
+    "typescript": "5.9.3"
+  }
+}
