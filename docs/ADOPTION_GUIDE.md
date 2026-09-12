@@ -20,7 +20,7 @@ Do not run `pi install`; this repository is not a Pi Package.
 
 | Module | Network | Persistent state | Default |
 |---|---:|---:|---|
-| Auren Dark | no | Pi theme setting only if deployed | explicit trial flag |
+| Auren Dark / Forest / Ember / Violet | no | Pi theme setting only if deployed | explicit trial flag |
 | Auren UI status/timing/Footer/BEL | no | completion metadata in Pi sessions | enabled when loaded |
 | ntfy | yes, when enabled | mode only; routing separate | off |
 | Relay Search | provider request only, when enabled | enabled boolean | off; target list empty |
@@ -44,7 +44,7 @@ Dependency installation is local to this clone. Inspect `package.json` and `pack
 
 ## Temporary Auren trial
 
-From this repository root:
+Choose one of `auren-dark`, `auren-forest`, `auren-ember`, or `auren-violet`. Use the same name for the JSON file and `--use-theme`. From this repository root:
 
 ```powershell
 pi `
@@ -106,7 +106,7 @@ The usual Pi global directory is `~/.pi/agent`; resolve it from the current user
 A deployment may selectively copy:
 
 ```text
-themes/auren-dark.json       → ~/.pi/agent/themes/auren-dark.json
+themes/auren-*.json          → ~/.pi/agent/themes/ (copy only selected themes)
 extensions/auren-ui/*.ts     → ~/.pi/agent/extensions/auren-ui/
 extensions/relay-search/*.ts → ~/.pi/agent/extensions/relay-search/
 prompts/APPEND_SYSTEM.md     → merge/review with ~/.pi/agent/APPEND_SYSTEM.md

@@ -1,6 +1,16 @@
 # Changelog
 
-## 0.1.0 — Unreleased
+## 0.2.0 — Unreleased
+
+- add Auren Forest, Ember, and Violet alongside Auren Dark;
+- validate every `themes/*.json` file against the pinned Pi 0.85.1 Theme Schema;
+- add shared contrast, structural hierarchy, palette identity, Thinking-level, and Diff-semantic tests;
+- document selecting and temporarily trialing any of the four dark themes;
+- keep the collection JSON-only with no additional Runtime, network, timer, or model cost.
+
+Light themes remain intentionally out of scope.
+
+## 0.1.0 — Initial public baseline
 
 Initial public-safe reference baseline:
 
@@ -13,4 +23,4 @@ Initial public-safe reference baseline:
 - agent-assisted adoption, security, architecture, and compatibility documentation;
 - simulated lifecycle regression tests and public-tree audit.
 
-No remote repository, Release, or package publication is configured.
+No package publication or Release is configured.

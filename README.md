@@ -10,7 +10,7 @@
 
 ### 本地优先的核心功能
 
-- **Auren Dark**：适合终端长时间阅读的克制型深色主题。
+- **Auren Themes**：四套共享语义结构的深色主题——冷静 Azure 的 Dark、自然 Sage/Jade 的 Forest、温暖 Copper/Amber 的 Ember，以及暮色 Lavender 的 Violet。
 - **Auren UI**：`idle / working / done / error` 状态、Run 计时、Session 估算、Terminal Title、Windows Terminal 进度、完成 Metadata 与 BEL 提醒。
 - **Footer Status Protocol v1**：Footer 只有一个 Renderer 所有者，其他 Extension 通过 `pi.events` 发布经过约束的数据型状态。
 - **Runtime Preferences**：小型、版本化、原子替换的 JSON 状态；读取异常时 fail-safe 为 `off`。
@@ -34,7 +34,7 @@ npm run validate:theme
 npm run audit:public
 ```
 
-在不修改全局 Pi 配置的情况下，临时试用 Auren UI 与 Theme：
+在不修改全局 Pi 配置的情况下，临时试用 Auren UI 与 Theme（将 `auren-dark` 替换为 `auren-forest`、`auren-ember` 或 `auren-violet` 即可切换）：
 
 ```powershell
 pi `
@@ -70,7 +70,7 @@ pi `
 extensions/auren-ui/          本地 UI、计时、Footer、BEL 与可选 ntfy
 extensions/relay-search/      Provider 托管搜索声明实验
 extensions/constrained-mcp/   不可直接运行的受约束 Registry 模板
-themes/auren-dark.json        Theme source of truth
+themes/auren-*.json           四套 Auren Theme source of truth
 prompts/APPEND_SYSTEM.md       通用 Safety 与 Shell Policy
 examples/                     不包含秘密的配置示例
 docs/                         采用流程、架构、安全和兼容性说明

@@ -1,10 +1,10 @@
-# Auren Dark Theme Showcase
+# Auren Theme Showcase
 
 这是一份用于检查终端 Markdown 长文阅读效果的最小 Fixture。它不是产品文档，也不用于验证 Tool Renderer 的全部状态。
 
 ## 中英文长文 / Mixed Prose
 
-Auren Dark should keep the final answer visually dominant while allowing metadata, thinking, and tool output to remain readable. 中文段落需要在等宽字体下保持清晰，不应因为颜色过暗而迫使用户复制到外部编辑器阅读。
+Every Auren palette should keep the final answer visually dominant while allowing metadata, thinking, and tool output to remain readable. 中文段落需要在等宽字体下保持清晰，不应因为颜色过暗而迫使用户复制到外部编辑器阅读。
 
 长篇回答的重点不是让每一段都像卡片，而是通过**清楚的标题**、适度的留白、链接、引用与代码语义建立稳定阅读节奏。Strong emphasis、*italic emphasis* 与 ~~removed text~~ 应当容易区分，但不能比标题更抢眼。
 
@@ -39,11 +39,11 @@ Auren Dark should keep the final answer visually dominant while allowing metadat
 
 ## Inline Code and Links
 
-Use `pi --theme ./themes/auren-dark.json --use-theme auren-dark` for a temporary run. A long URL should remain secondary rather than becoming a bright wall of text: <https://example.com/a/very/long/path/with/query?source=auren-dark&mode=fullscreen&language=zh-CN>.
+Use `pi --theme ./themes/auren-violet.json --use-theme auren-violet` for one temporary run. A long URL should remain secondary rather than becoming a bright wall of text: <https://example.com/a/very/long/path/with/query?source=auren&mode=fullscreen&language=zh-CN>.
 
 Long unbroken token:
 
-`AurenDarkThemeValidationToken_ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789_abcdefghijklmnopqrstuvwxyz`
+`AurenThemeValidationToken_ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789_abcdefghijklmnopqrstuvwxyz`
 
 ## TypeScript
 
@@ -65,18 +65,19 @@ export function formatDuration(ms: number): string {
 ## PowerShell
 
 ```powershell
-$Theme = Join-Path $PWD "themes\auren-dark.json"
+$ThemeName = "auren-violet"
+$Theme = Join-Path $PWD "themes\$ThemeName.json"
 if (-not (Test-Path $Theme)) {
     throw "Theme not found: $Theme"
 }
-pi --theme $Theme --use-theme auren-dark
+pi --theme $Theme --use-theme $ThemeName
 ```
 
 ## JSON
 
 ```json
 {
-  "name": "auren-dark",
+  "name": "auren-violet",
   "colors": {
     "accent": "accent",
     "success": "success",
@@ -90,7 +91,7 @@ pi --theme $Theme --use-theme auren-dark
 
 | State | Meaning | Expected treatment |
 |---|---|---|
-| working | Agent is active | Muted cyan-blue accent |
+| working | Agent is active | Current Theme accent |
 | done | Run settled | Restrained jade green |
 | error | Run failed | Clear coral red |
 | needs-input | Reserved | Warm gold, not implemented in v1 |

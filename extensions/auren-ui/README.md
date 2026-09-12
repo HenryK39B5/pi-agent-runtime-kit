@@ -19,7 +19,7 @@ The Extension does not start a process, watcher, server, or idle timer. The only
 
 ## Temporary trial
 
-From the repository root:
+Choose `auren-dark`, `auren-forest`, `auren-ember`, or `auren-violet`, then use the same name in both Theme flags. From the repository root:
 
 ```powershell
 pi `
