@@ -6,6 +6,7 @@ import type { FooterStatusContribution } from "./footer-status.ts";
 export interface FooterData {
   session?: string;
   cwd: string;
+  provider?: string;
   model?: string;
   thinking?: string;
   contextPercent?: number | null;
@@ -41,13 +42,14 @@ export function renderFooter(data: FooterData, state: AurenRuntimeState, width: 
   if (typeof percent === "number" && Number.isFinite(percent)) {
     addRight(theme.fg(percent >= 95 ? "error" : percent >= 80 ? "warning" : "muted", `ctx ${Math.round(Math.max(0, percent))}%`));
   }
+  const identity = data.provider && data.model ? `${clean(data.provider)}/${clean(data.model)}` : undefined;
+  if (identity) addRight(theme.fg("muted", identity));
+  for (const status of data.statuses ?? []) addRight(theme.fg(status.tone, clean(status.label)));
+  if (data.thinking && data.thinking !== "off") addRight(theme.fg("dim", clean(data.thinking)));
   if (data.session) {
     const available = width - visibleWidth(left) - 3 - (right ? visibleWidth(right) + 3 : 0);
     if (available >= 8) addLeft(theme.fg("text", truncateToWidth(clean(data.session), Math.min(28, available))));
   }
-  for (const status of data.statuses ?? []) addRight(theme.fg(status.tone, clean(status.label)));
-  if (data.model) addRight(theme.fg("muted", truncateToWidth(clean(data.model), 28)));
-  if (data.thinking && data.thinking !== "off") addRight(theme.fg("dim", clean(data.thinking)));
   // Never substitute a basename for the requested full working directory.
   if (data.cwd) addLeft(theme.fg("dim", clean(data.cwd)));
   addLeft(theme.fg("dim", `session ~${formatDuration(sessionActiveAt(state, now))}`));

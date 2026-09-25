@@ -44,8 +44,14 @@ for (const order of ["auren-first", "relay-first"] as const) test(`Footer contri
     };
     handlers.get("session_start")?.forEach(fn => fn({}, ctx));
     const line = footer.render(180)[0];
+    assert.ok(line.includes("example-provider/search-model-alpha"));
     assert.ok(line.includes("web"));
     assert.ok(line.includes("ntfy strong"));
+    ctx.model = { ...ctx.model, provider: "another-provider" };
+    handlers.get("model_select")?.forEach(fn => fn({}, ctx));
+    const switched = footer.render(180)[0];
+    assert.ok(switched.includes("another-provider/search-model-alpha"));
+    assert.ok(!switched.includes("example-provider/search-model-alpha"));
     handlers.get("session_shutdown")?.forEach(fn => fn({}, ctx));
   } finally {
     if (oldAuren === undefined) delete process.env.PI_AUREN_UI_STATE; else process.env.PI_AUREN_UI_STATE = oldAuren;

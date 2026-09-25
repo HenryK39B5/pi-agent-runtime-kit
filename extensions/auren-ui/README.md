@@ -7,13 +7,15 @@ An event-driven Pi 0.85.1 reference Extension for terminal status, timing, compl
 - `idle / working / done / error` state;
 - run wall-clock timing from `agent_start` to `agent_settled`;
 - conservative session active-time estimate;
-- one width-aware Footer and Terminal Title;
+- one width-aware Footer with an atomic `provider/model` identity and Terminal Title;
 - Windows Terminal OSC `9;4` progress;
 - one completion metadata entry bound to the final Assistant entry;
 - BEL after successful runs longer than 15 seconds and immediately on errors;
 - optional ntfy mode persisted as `off | on | strong`;
 - Footer Status Protocol v1 for bounded data-only contributions;
 - timer/UI cleanup on settlement, replacement, reload, session change, and shutdown.
+
+The Footer prioritizes status and context, then displays the full `provider/model` identity before optional status labels and the session name. This distinguishes the same model served by different providers. When space is insufficient, the entire identity is omitted rather than truncated.
 
 The Extension does not start a process, watcher, server, or idle timer. The only one-second timer exists while a run is working.
 

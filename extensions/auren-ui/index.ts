@@ -155,6 +155,7 @@ export default function aurenUi(pi: ExtensionAPI) {
           return [renderFooter({
             session: pi.getSessionName(),
             cwd: ctx.cwd,
+            provider: ctx.model?.provider,
             model: ctx.model?.id,
             thinking: ctx.thinkingLevel,
             contextPercent: ctx.getContextUsage()?.percent,

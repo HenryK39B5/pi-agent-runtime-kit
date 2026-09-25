@@ -2,6 +2,7 @@
 
 ## 0.2.0 — Unreleased
 
+- show the full `provider/model` identity in Auren Footer, reserving space ahead of optional statuses and session name; omit the whole identity if it does not fit;
 - add Auren Forest, Ember, and Violet alongside Auren Dark;
 - validate every `themes/*.json` file against the pinned Pi 0.85.1 Theme Schema;
 - add shared contrast, structural hierarchy, palette identity, Thinking-level, and Diff-semantic tests;
