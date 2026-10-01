@@ -1,4 +1,6 @@
-# Constrained MCP template
+# Constrained MCP template (historical, opt-in)
+
+The current Pi 0.99.2 kit prefers [official built-in MCP](../../docs/NATIVE_MCP.md). This old template is not re-certified against the new baseline and is not the default integration. Enabling an adapter that registers `/mcp` replaces native session MCP support; do not load both blindly. Its pure policy tests do not prove adapter runtime/OAuth compatibility.
 
 This directory demonstrates a narrow wrapper around pinned `pi-mcp-adapter@2.32.1`. It is deliberately **not a runnable configured Extension**: committed endpoints use the reserved `.invalid` domain, and the actual `servers.ts` / `index.ts` filenames are ignored.
 

@@ -1,30 +1,39 @@
 # Compatibility
 
-## Verified baseline
+## Current reference-source baseline — 2026-10-01
 
-| Component | Verified |
-|---|---|
-| Pi | 0.85.1 |
-| Node.js | 22 and 24 test execution |
-| OS | Windows 11 |
-| Main command tool | Windows PowerShell 5.1 |
-| Terminal | Windows Terminal |
-| Optional Bash | Git for Windows / MINGW64 |
-| MCP adapter template | pi-mcp-adapter 2.32.1 |
+| Component / evidence | Scope |
+| --- | --- |
+| Pi packages | Exact-pinned 0.99.2; strict source types, native components and in-memory SDK synthetic tests |
+| Node | 24.13.1 tested this update; dependency minimum 22.19.0, not a fresh Node 22 certification |
+| OS / main shell | Windows 11 / Windows PowerShell |
+| Optional shell | Confirmed Git for Windows MINGW64 with Windows Node, not WSL/Linux |
+| Themes | All four JSON palettes pass current pinned schema and shared palette tests |
+| OpenAI route | Empty production registry; synthetic Responses declaration/guidance/URL-annotation tests only |
+| Helper route | Empty production registry; explicit invalid-endpoint fixture policies and synthetic direct/codemode loops only |
+| Native MCP | Installed-version docs and disabled example shape checked; no actual server/OAuth/interactive certification |
+| Legacy adapter | Old 2.32.1 template retained; pure policy tests do not certify Runtime/OAuth against 0.99.2 |
 
-The source uses Pi Extension events and APIs available in the verified baseline. Future versions may change lifecycle, settings, TUI, Theme, Provider request, or session-entry behavior. Read the installed package's local documentation and type declarations before adapting.
+The current update passes **149/149 isolated tests** in PowerShell and Git Bash/Windows Node, strict TypeScript, four-theme validation and public-tree audit. Tests use this clone's pinned packages, not a machine-specific global SDK default.
 
-## Known limits
+Actual user TUI/click behavior, long sessions, complete multi-session/MCP composition, real provider searches, endpoint authentication/billing and other platforms remain adopter validation. Package identity and synthetic HTTP cannot prove a remote model or search backend.
 
-- OSC `9;4` taskbar progress is Windows Terminal-specific; unsupported terminals should ignore it.
-- BEL sound and volume are controlled by the terminal and operating system.
-- Theme controls colors, not font, size, or terminal layout.
-- Session active time is a conservative estimate from timestamped entries, not billing, CPU time, or user work time.
-- Pi 0.85.1 may drop provider-hosted search events and structured citations while retaining final text and explicit links.
-- The pinned MCP adapter's declared Pi peer range may lag the verified Pi version; runtime smoke testing is required.
-- OAuth may involve a platform-specific native credential-store binding. Install dependencies on the same OS/architecture that runs Pi.
-- Changing `defaultTools` requires a fresh Pi process; `/reload` may preserve active tools.
+## Historical baseline
 
-## Platform guidance
+The earlier kit was tested with Pi 0.85.1 and Node 22/24. This history is not an assertion that changed sources using newer lifecycle/system-prompt/provider-event/codemode APIs still support 0.85.1. Review the exact installed version before adoption or upgrades.
 
-The Auren core is mostly platform-neutral, but the baseline intentionally favors Windows-native projects. A complete WSL toolchain can also be stable; avoid mixing Linux Shell/Git with Windows Node/npm/SSH in one workflow.
+## Known boundaries
+
+- OSC 9;4 progress is Windows Terminal-specific; BEL sound belongs to terminal/OS.
+- Theme changes color, not font or layout.
+- Session time is recorded run wall time where available plus conservative old-history estimates, not billing, CPU or human work time.
+- Manual continuation after settlement starts a new Run; prior time is retained without idle waiting.
+- Markdown repairs are display-only/bounded and preserve stored text; complex/incomplete spans remain native.
+- URL annotations that never arrived or were already lost cannot be reconstructed from cite IDs.
+- Source summaries are not full pages or verified facts; source text filtering is not complete DLP.
+- Helper adaptive/low/streamed hosted-search compatibility is target-specific. Empty registries and strict end/reference checks must not be weakened to make an untested provider appear supported.
+- Native MCP can connect at startup/reconnect and spawn server processes. A /mcp-registering wrapper changes session support but not native shell CLI behavior.
+- Reload/restart effects vary by installed Pi API; changing default tools may need a fresh process.
+- Offline network hooks are not a sandbox and do not constrain malicious Extensions/subprocesses.
+
+Keep Windows-native Shell/Git/Node/npm/SSH in one toolchain. A complete WSL environment can be valid, but was not tested here.

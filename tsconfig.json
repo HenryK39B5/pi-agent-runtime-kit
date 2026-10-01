@@ -11,8 +11,10 @@
   },
   "include": [
     "extensions/auren-ui/*.ts",
-    "extensions/relay-search/*.ts",
+    "extensions/openai-web-search/*.ts",
+    "extensions/kiro-web-search/*.ts",
     "extensions/constrained-mcp/commands.ts",
-    "tests/**/*.ts"
+    "tests/**/*.ts",
+    "examples/*-targets.example.ts"
   ]
 }

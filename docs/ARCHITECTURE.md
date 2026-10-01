@@ -1,62 +1,42 @@
 # Architecture
 
-## Design goals
+Event-driven, bounded and opt-in. No database, watcher, local server, background model call or second Footer owner.
 
-- event-driven and idle-light;
-- one owner per shared UI surface;
-- bounded timers, registries, retries, and persisted state;
-- deterministic rules before model judgment;
-- optional network capability remains off until explicitly configured;
-- no database, watcher, local server, automatic model call, or unbounded history;
-- temporary validation before global deployment.
+## Layers
 
-## Runtime layers
+- Pi lifecycle/Session: native messages and runtime identity.
+- Auren UI: state, Run/restored Session timing, metadata, title/progress/BEL and single Footer; Context leaf/model/event cache and bounded Markdown display adaptation.
+- Footer Status Protocol: validated versioned short data contributions, maximum eight; load-order request/snapshot handshake.
+- OpenAI route: exact reviewed Responses main-request declaration/guidance; bounded completed-response URL annotations and display-only source entries.
+- Helper route: exact reviewed query-only independent request; one ordinary tool_result, strict payload/association/ending/limits, explicit on/off and cancellation.
+- Official MCP: Pi-owned config/auth/connection/tool discovery. The old constrained adapter is a non-default historical template.
 
-```text
-Pi Agent Loop and Session
-          │
-          ├─ Auren UI: lifecycle state, timing, title, progress, metadata
-          │      └─ owns the single Footer renderer
-          │
-          ├─ Footer Status Protocol: bounded data contributions over pi.events
-          │      └─ optional modules publish policy state such as web/ntfy
-          │
-          ├─ Relay Search: narrow before_provider_request declaration hook
-          │
-          └─ Constrained MCP template: one lazy proxy over a fixed registry
-```
+## Timing and context
 
-## Lifecycle semantics
+Run = agent_start→agent_settled. Retry/queued work does not settle early; manual continuation after settlement is a new Run. Session totals retain previous success/error Runs without user idle waiting.
 
-A run begins at `agent_start` and completes at `agent_settled`, not merely `agent_end`. Settled completion avoids announcing success while Pi is retrying, compacting, or processing queued continuation work.
+Validated metadata durations are preferred and branch-bound/deduplicated; older persisted history is conservatively estimated. Visible completion uses `auren.completion.v1`; no-answer timing uses `auren.run-timing.v1` without faking an answer row. Both remain outside model context, but are local Session state.
 
-Only a working run owns the one-second render timer. Settlement, footer replacement, session replacement, `/reload`, and shutdown clean up owned state. Duplicate events do not double-count run time or append duplicate completion metadata.
+Context cache invalidation marks dirty on lifecycle events; it samples after persistence during render and also keys on leaf/provider/model/window. Working timer updates time only; idle has no timer.
 
-## Completion metadata
+## Display versus provider data
 
-A custom session entry records version, completion instant, run duration, final Assistant entry ID, and outcome. It is rendered for the user but does not enter subsequent model context. No Tool output, prompt, response body, workspace content, or credential is stored in this entry.
+Auren's emphasis adaptation and OpenAI marker cleanup only transform assistant Markdown at display time, not stored/signed text or model context. Native Markdown handles layout and OSC 8/fallback links.
 
-## Footer ownership protocol
+`openai.web-citations.v1` holds safe URL/title plus answer identity, not raw SSE, prompt, query, thinking or opaque data. Collector bounds: 8 responses, 8 sources each, 64 annotations/32 items per input batch, 256 item mappings. Temporary state is lifecycle-cleared. Old lost annotations cannot be recovered; sources are not separately fetched or verified.
 
-Auren is the sole Footer renderer. Other Extensions publish data on:
+## Status and preferences
 
-```text
-auren:footer-status:v1
-auren:footer-status-request:v1
-```
+The shared channels are `auren:footer-status:v1` and `auren:footer-status-request:v1`. Contributors have independent IDs, never delete another route's contribution, and Auren sanitizes/layouts all items.
 
-Contributions are validated, terminal sequences removed, labels width-bounded, priorities clamped, and the registry limited to eight entries. A request/snapshot handshake prevents Extension load order from deciding whether state appears.
+Current supported model gets `web:openai` or `web:kiro`; disabled is muted `web:off`; unmatched models remove the badge. ntfy off is hidden. These are policy states, not external success indicators.
 
-The displayed state is a policy signal, not proof of an external result. `web` means hosted search declaration is enabled for configured targets; `ntfy` means notification mode is enabled. Neither proves that a provider searched or a phone received a message.
+Three separate versioned preferences store only explicit mode, default off on absent/corrupt state. No watcher/history DB; writes only on explicit changes. Routing/authentication is separate.
 
-## Preferences
+## Network cost and scope
 
-Each optional module stores only its explicit mode in a separate versioned JSON file under Pi's state directory. Reads happen at session start. Writes happen only on explicit mode changes and use adjacent temporary-file replacement. Missing, unreadable, malformed, or unsupported data fails safe to `off`.
+ntfy sends only a short session label/duration, never answer/path/tool/error details; strong mode is six fixed slots, no queued overlap/retries.
 
-## Optional network boundaries
+OpenAI declaration adds no extra request; existing provider/Pi behavior remains external. Helper adds one possibly billed request, only a public query, fixed low effort, zero retry/redirect and finite time/bytes/sources. Available usage is accounted once through ordinary/codemode tools, not treated as a billing guarantee.
 
-ntfy sends a short session label and duration, never the Assistant response, working directory, Tool output, or error details. Strong mode has six fixed slots, skips overlap, stops on transport failure, and cancels on mode/session/task changes.
-
-Relay Search never executes local search. It immutably appends one provider-hosted declaration only for exact reviewed targets and conservative ordinary Agent request shapes. It does not retry, discover capabilities, inspect credentials, or replace existing tools.
-
-The MCP template uses programmatic config rather than ambient discovery. It disables Direct Tools, script mode, Sampling, Resources, auto-auth, debug/trace, eager connection, startup notifications, and a competing MCP Footer.
+Native MCP may connect/reconnect or spawn stdio processes when enabled. This kit deliberately supplies no wrapper, exposure tuning or real server. See [Native MCP](NATIVE_MCP.md) and the installed version's documentation.

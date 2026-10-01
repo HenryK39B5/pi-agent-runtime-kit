@@ -3,6 +3,8 @@ import { basename } from "node:path";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
 import { registerPhoneNotify } from "./phone.ts";
+import { createContextCache } from "./context-cache.ts";
+import { registerReadingMarkdown } from "./markdown-reading.ts";
 import { renderFooter } from "./footer.ts";
 import {
   applyFooterStatus,
@@ -29,6 +31,8 @@ import {
   settleRun,
   startRun,
   type AurenRuntimeState,
+  RUN_TIMING_ENTRY_TYPE,
+  type RunTimingData,
 } from "./runtime.ts";
 import { oscProgress, shouldNotify, writeTerminalControl } from "./terminal.ts";
 
@@ -66,6 +70,7 @@ function terminalTitle(pi: ExtensionAPI, ctx: ExtensionContext, state: AurenRunt
 }
 
 export default function aurenUi(pi: ExtensionAPI) {
+  registerReadingMarkdown(pi);
   const phone = registerPhoneNotify(pi);
   pi.registerFlag("auren-notify", {
     description: "Enable Auren completion BEL notifications",
@@ -83,6 +88,7 @@ export default function aurenUi(pi: ExtensionAPI) {
   let requestRender: (() => void) | undefined;
   let runStartLeafId: string | null | undefined;
   const footerStatuses = new Map<string, FooterStatusContribution>();
+  const contextCache = createContextCache();
 
   const stopTimer = () => {
     if (timer !== undefined) clearInterval(timer);
@@ -131,6 +137,7 @@ export default function aurenUi(pi: ExtensionAPI) {
     requestRender = undefined;
     runStartLeafId = undefined;
     footerStatuses.clear();
+    contextCache.clear();
     state = createRuntimeState(rebuildSessionActive(ctx.sessionManager.getEntries()));
     pi.events.emit(FOOTER_STATUS_REQUEST_CHANNEL, { version: 1 });
 
@@ -158,7 +165,7 @@ export default function aurenUi(pi: ExtensionAPI) {
             provider: ctx.model?.provider,
             model: ctx.model?.id,
             thinking: ctx.thinkingLevel,
-            contextPercent: ctx.getContextUsage()?.percent,
+            contextPercent: contextCache.read(ctx),
             statuses: orderedFooterStatuses(footerStatuses),
           }, state, width, Date.now(), theme)];
         },
@@ -180,6 +187,8 @@ export default function aurenUi(pi: ExtensionAPI) {
   });
 
   pi.on("message_end", (event) => {
+    // This handler precedes persistence; the leaf key additionally detects the subsequent append.
+    contextCache.invalidate();
     if (state.status !== "working" || event.message.role !== "assistant") return;
     if (event.message.stopReason === "error" || event.message.stopReason === "aborted") {
       markRunError(state);
@@ -203,14 +212,18 @@ export default function aurenUi(pi: ExtensionAPI) {
       const branch = ctx.sessionManager.getBranch();
       const finalAssistant =
         startLeafId === undefined ? undefined : findFinalAssistantEntry(branch, startLeafId);
+      const timing: RunTimingData = {
+        version: 1, completedAt: new Date().toISOString(), durationMs: duration,
+        runStartLeafId: startLeafId ?? null, runEndLeafId: ctx.sessionManager.getLeafId(),
+        outcome: state.status === "error" ? "error" : "done",
+      };
       if (finalAssistant && !completionAlreadyFollows(branch, finalAssistant.id)) {
         pi.appendEntry<AurenCompletionEntryV1>(COMPLETION_ENTRY_TYPE, {
-          version: 1,
-          completedAt: new Date().toISOString(),
-          durationMs: duration,
-          assistantEntryId: finalAssistant.id,
-          outcome: state.status === "error" ? "error" : "done",
+          ...timing, assistantEntryId: finalAssistant.id,
         });
+      } else if (!finalAssistant) {
+        // Errors/cancellation without a visible answer still have durable active time, not a fake answer row.
+        pi.appendEntry<RunTimingData>(RUN_TIMING_ENTRY_TYPE, timing);
       }
     } catch {
       if (ctx.mode === "tui") ctx.ui.notify("Auren completion metadata could not be saved.", "warning");
@@ -229,19 +242,22 @@ export default function aurenUi(pi: ExtensionAPI) {
     }
   });
 
-  pi.on("model_select", () => renderNow());
+  pi.on("model_select", () => { contextCache.invalidate(); renderNow(); });
+  pi.on("turn_end", () => { contextCache.invalidate(); });
+  pi.on("session_compact", () => { contextCache.invalidate(); renderNow(); });
 
   pi.on("thinking_level_select", () => renderNow());
   pi.on("session_info_changed", (_event, ctx) => {
     refreshTitle(ctx);
     renderNow();
   });
-  pi.on("session_tree", () => renderNow());
+  pi.on("session_tree", () => { contextCache.invalidate(); renderNow(); });
 
   pi.on("session_shutdown", (_event, ctx) => {
     runStartLeafId = undefined;
     footerStatuses.clear();
     state = createRuntimeState();
+    contextCache.clear();
     clearOwnedUi(ctx);
   });
 }

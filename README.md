@@ -1,30 +1,36 @@
 # Pi Agent Runtime Kit
 
-一套面向 [Pi](https://pi.dev/) 的公开、安全、轻量、可观察、可回滚的 Runtime DIY 参考实现。它适合 Clone 到本地后，连同相关文章或你自己的需求一起交给 Agent，由 Agent 检查本机环境并协助移植。
+一套面向 [Pi](https://pi.dev/) 的公开、安全、轻量、可观察、可回滚的 Runtime DIY 参考实现。适合 Clone 到本地后交给 Agent，按本机环境和真实需求审查、选择、试运行，再部署。
 
-本仓库**不是** Pi 官方项目、npm/Pi Package、持续维护的发行版或一键安装器。它的定位是 Agent-assisted adoption kit：先理解、选择和试运行，再部署真正需要的模块。
+本仓库**不是** Pi 官方项目、npm/Pi Package、一键安装器或私人 Runtime 的镜像。不会附带任何可直接使用的账户、Provider 目标、服务注册表、凭据或私人部署记录。
 
-已验证基线：**Pi 0.85.1**、Node.js 22/24、Windows 11、Windows Terminal 与 PowerShell。其他版本和平台可能可用，但必须结合本机安装版本的 Pi 文档重新检查。
+当前源码/开发依赖基线为 **Pi 0.99.2**；本轮验证环境是 Windows 11、Node 24.13.1、PowerShell 与 Git Bash/Windows Node。Node 最低版本随依赖要求为 22.19.0，但本轮没有重新认证 Node 22。旧 0.85.1 为历史基线，不代表新源码仍兼容。验证范围见 [Compatibility](docs/COMPATIBILITY.md)。
 
 ## 包含哪些内容
 
-### 本地优先的核心功能
+### 本地优先
 
-- **Auren Themes**：四套共享语义结构的深色主题——冷静 Azure 的 Dark、自然 Sage/Jade 的 Forest、温暖 Copper/Amber 的 Ember，以及暮色 Lavender 的 Violet。
-- **Auren UI**：`idle / working / done / error` 状态、Run 计时、Session 估算、Terminal Title、Windows Terminal 进度、完成 Metadata 与 BEL 提醒。
-- **Footer Status Protocol v1**：Footer 只有一个 Renderer 所有者，其他 Extension 通过 `pi.events` 发布经过约束的数据型状态。
-- **Runtime Preferences**：小型、版本化、原子替换的 JSON 状态；读取异常时 fail-safe 为 `off`。
-- **Safety Prompt**：简短的行为策略与 Windows 原生工具链规则。它不是 Sandbox。
+- **Auren Themes**：Dark、Forest、Ember、Violet 四套纯 JSON 深色主题；不修改字体。
+- **Auren UI**：状态、Run/Session 计时、Title、Windows Terminal 进度、完成 Metadata、BEL；仅 working 期间一个 1 Hz Timer。
+- **恢复计时**：优先正确绑定的记录、去重/分支/queued/steering 与无文本异常恢复；手动“继续”是新 Run，Session 保留旧 Run，不计空闲等待。
+- **Context 缓存**：按 leaf/model 与生命周期失效，不每秒重复投影扫描。
+- **Markdown 阅读适配**：修正中文标点紧邻简单强调的显示；保留原文、代码、链接与复杂/不完整片段，不替换原生 renderer。
+- **Footer Status Protocol v1**：Auren 是唯一 Footer owner，其余模块只发布有界数据。
+- **Safety Prompt**：行为策略与 Windows 原生工具链指导，不是 Sandbox。
 
-### 默认关闭的可选功能
+### 默认关闭、需要明确配置
 
-- **ntfy 通知**：发送一次普通通知，或最多六次有界强提醒；真实路由始终留在仓库外部。
-- **Relay Search**：只为人工确认的 OpenAI Responses Provider/Model 追加托管 `web_search` 声明；公开目标列表故意保持为空。
-- **Constrained MCP 模板**：固定 Registry、关闭高能力表面并精确锁定 `pi-mcp-adapter`；所有示例地址均为不可访问的保留域名。
+- **ntfy**：短消息或最多六次有界强提醒；测试消息明确标注测试，真实路由只在仓库外。
+- **OpenAI Web Search**：主 Responses 请求级 hosted 声明/指导，完成响应的实际 URL annotations 用原生 Markdown 显示；目标列表为空。
+- **Kiro helper 适配模板**：query-only 独立 hosted-search 辅助请求、严格边界/清洗/取消与来源链接；目标列表为空，不是通用 Claude/Kiro 兼容承诺。
+- **官方 MCP 接法**：仅提供 disabled + invalid-domain 示例和发现/schema/auth 边界指导；不连接真实服务。
+- **历史受约束 MCP 模板**：仍保留为非默认、需重新审查的旧模板，未认证其新基线 Runtime/OAuth。
 
-## 安全试运行
+两条搜索路线使用 `/openai-web` 与 `/kiro-web`，独立保存选择；Footer 仅当前支持路线显示 `web:openai` / `web:kiro` 或灰色 `web:off`。没有旧 Relay 命令/状态 fallback。开启、声明和 Footer 都不是实际搜索/事实核验的证明。
 
-首先安装仅用于测试的开发依赖：
+## 验证与安全试运行
+
+开发依赖只安装在此 Clone：
 
 ```powershell
 npm ci --ignore-scripts
@@ -34,62 +40,49 @@ npm run validate:theme
 npm run audit:public
 ```
 
-在不修改全局 Pi 配置的情况下，临时试用 Auren UI 与 Theme（将 `auren-dark` 替换为 `auren-forest`、`auren-ember` 或 `auren-violet` 即可切换）：
+`npm test` 在导入前隔离通知/三偏好/Agent 路径，默认阻止标准 Node 网络连接；真实模型、通知或 MCP 测试不混入离线入口。禁网护栏不是 OS Sandbox。
 
-```powershell
-pi `
-  --no-extensions `
-  --no-themes `
-  --theme ./themes/auren-dark.json `
-  --use-theme auren-dark `
-  --tui-mode fullscreen `
-  -e ./extensions/auren-ui/index.ts
-```
-
-`--no-extensions` 可以防止已经安装的 UI Extension 与当前源码同时接管 Footer；显式指定的 `-e` 仍然会加载。
+临时 UI 试运行请先遵循 [Adoption guide](docs/ADOPTION_GUIDE.md) 的隔离环境步骤，避免继承已有通知模式、路由或 MCP 连接。不要把整个仓库复制到全局配置。
 
 ## 让 Agent 协助移植
 
-让 Agent 先读取 `AGENTS.md`，再读取 `docs/ADOPTION_GUIDE.md`。推荐流程是：
+1. 读取 `AGENTS.md`、采用指导和安全边界；
+2. 检查本机 Pi 版本及对应的完整本地文档；
+3. 按需选择模块，识别同名命令、Footer 和 MCP 所有者；
+4. 联网保持 off/未配置，明确评审 Provider 或服务器；
+5. 跑仓库测试与有界临时验证；
+6. 展示拟修改的全局 diff、备份及回滚；
+7. 用户明确批准后部署，发布/Push 另行授权。
 
-1. 检查本机 Pi 版本和对应的本地文档；
-2. 按需选择模块，而不是默认安装全部内容；
-3. 识别操作系统、Terminal、Shell 与目标配置目录；
-4. 在配置完成前保持所有联网模块关闭；
-5. 运行仓库测试和临时 Pi Smoke Test；
-6. 展示拟修改的全局 Diff、备份位置和回滚方法；
-7. 获得用户明确确认后再部署。
+> 请先阅读本仓库的 AGENTS.md 与 docs/ADOPTION_GUIDE.md，核对我本机 Pi 版本及相关文档。选择最小模块，先展示临时试运行、全局 Diff 和回滚方案；未经确认，不修改全局、发送通知、连接 MCP、执行 Provider 测试或发布。
 
-可以直接使用下面的起始要求：
-
-> 请先阅读这个仓库的 `AGENTS.md` 与 `docs/ADOPTION_GUIDE.md`，检查我本机安装的 Pi 版本和对应文档。根据我的系统选择最小模块，先给出临时试运行、全局修改 Diff 和回滚方案；未经我确认，不要修改全局配置、发送通知、连接 MCP 或执行发布操作。
-
-## 仓库结构
+## 结构
 
 ```text
-extensions/auren-ui/          本地 UI、计时、Footer、BEL 与可选 ntfy
-extensions/relay-search/      Provider 托管搜索声明实验
-extensions/constrained-mcp/   不可直接运行的受约束 Registry 模板
-themes/auren-*.json           四套 Auren Theme source of truth
-prompts/APPEND_SYSTEM.md       通用 Safety 与 Shell Policy
-examples/                     不包含秘密的配置示例
-docs/                         采用流程、架构、安全和兼容性说明
-scripts/                      测试与公开树检查
-tests/                        纯函数和模拟生命周期回归测试
+extensions/auren-ui/          本地 UI、计时、缓存、Markdown 与可选 ntfy
+extensions/openai-web-search/ 主请求 hosted 搜索与 display-only 来源
+extensions/kiro-web-search/   默认未配置的独立 helper 协议适配
+extensions/constrained-mcp/   历史非默认模板，不可直接运行
+themes/                      四套纯 JSON Theme
+prompts/                     通用 Safety 与 Shell Policy
+examples/                    空目标/无效域名/disabled 配置形状
+docs/                        采用、架构、安全、兼容性与本轮边界
+scripts/                     隔离测试、Theme 与公开树检查
+tests/                       纯规则/原生组件/SDK 合成回归
 ```
 
 ## 重要边界
 
-- Pi Extension 与 Pi 进程拥有相同的用户权限。
-- Prompt Policy 只能引导行为，不能强制实现工具安全。
-- ntfy 和 MCP 可能向外部服务传输数据。
-- Relay Search 依赖 Provider 行为，追加声明不代表搜索一定发生；Pi 0.85.1 还可能丢失 Hosted Search Event 和结构化 Citation。
-- Completion Metadata 与 Preference 文件属于本地 Runtime 状态，不应提交。
-- Constrained MCP 示例不会读取任意项目或宿主 MCP 配置。
-- 本仓库不承诺维护周期，也不承诺兼容未来 Pi 版本。
+- Extension 与 Pi 同用户权限；Prompt 不是强制权限门。
+- Helper 和 MCP/ntfy 启用后可向外部传数据，失败/取消仍可能计费。
+- 来源摘要不是完整页面，也不是事实认证；URL 清洗不是完整 DLP。
+- 来源/完成记录不进入模型上下文，但仍属于本地 Session 状态，不应提交。
+- 官方 MCP 的连接/重连与进程生命周期不是零成本；OAuth 和远程写入需要明确意图。
+- 旧 `/mcp` Wrapper 会替换原生 session MCP，不应盲目混用。
+- 不承诺未来版本、平台或网关的兼容性，也不自动安装、升级、部署或发布。
 
-启用任何联网模块前，请先阅读 `docs/SECURITY_BOUNDARIES.md`。
+详见 [Security boundaries](docs/SECURITY_BOUNDARIES.md)、[Native MCP](docs/NATIVE_MCP.md) 和 [本轮清洗范围](docs/MAINTENANCE_UPDATE.md)。
 
 ## License
 
-MIT。第三方依赖继续遵循各自 License；本仓库不复制依赖源码，也不提交 `node_modules`。
+MIT。第三方依赖遵循各自 License；不复制依赖源码或提交 node_modules。

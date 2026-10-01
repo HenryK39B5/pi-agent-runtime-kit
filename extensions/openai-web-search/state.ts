@@ -2,13 +2,13 @@ import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 
-export interface RelaySearchPreference { enabled: boolean; warning?: string; }
+export interface OpenAIWebSearchPreference { enabled: boolean; warning?: string; }
 
-export function relaySearchStatePath(): string {
-  return process.env.PI_RELAY_SEARCH_STATE || join(homedir(), ".pi", "agent", "state", "relay-search.json");
+export function openAIWebSearchStatePath(): string {
+  return process.env.PI_OPENAI_WEB_SEARCH_STATE || join(homedir(), ".pi", "agent", "state", "openai-web-search.json");
 }
 
-export function loadRelaySearchPreference(path = relaySearchStatePath()): RelaySearchPreference {
+export function loadOpenAIWebSearchPreference(path = openAIWebSearchStatePath()): OpenAIWebSearchPreference {
   try {
     const value = JSON.parse(readFileSync(path, "utf8")) as unknown;
     if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("invalid document");
@@ -17,11 +17,11 @@ export function loadRelaySearchPreference(path = relaySearchStatePath()): RelayS
     return { enabled: state.enabled };
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return { enabled: false };
-    return { enabled: false, warning: "Saved Relay Search state is invalid or unreadable; using off." };
+    return { enabled: false, warning: "Saved OpenAI Web Search state is invalid or unreadable; using off." };
   }
 }
 
-export function saveRelaySearchPreference(enabled: boolean, path = relaySearchStatePath()): string | undefined {
+export function saveOpenAIWebSearchPreference(enabled: boolean, path = openAIWebSearchStatePath()): string | undefined {
   const temporary = `${path}.tmp-${process.pid}`;
   try {
     mkdirSync(dirname(path), { recursive: true });
@@ -29,7 +29,7 @@ export function saveRelaySearchPreference(enabled: boolean, path = relaySearchSt
     renameSync(temporary, path);
     return undefined;
   } catch {
-    return "Current Relay Search mode changed, but its saved preference could not be updated.";
+    return "Current OpenAI Web Search mode changed, but its saved preference could not be updated.";
   } finally {
     try { rmSync(temporary, { force: true }); } catch { /* best-effort temp cleanup */ }
   }

@@ -1,68 +1,32 @@
 # Auren UI
 
-An event-driven Pi 0.85.1 reference Extension for terminal status, timing, completion metadata, and bounded notifications.
+Event-driven Pi 0.99.2 reference source. It owns the single Footer, title, progress, completion metadata and optional notifications.
 
-## Features
+## Behavior
 
-- `idle / working / done / error` state;
-- run wall-clock timing from `agent_start` to `agent_settled`;
-- conservative session active-time estimate;
-- one width-aware Footer with an atomic `provider/model` identity and Terminal Title;
-- Windows Terminal OSC `9;4` progress;
-- one completion metadata entry bound to the final Assistant entry;
-- BEL after successful runs longer than 15 seconds and immediately on errors;
-- optional ntfy mode persisted as `off | on | strong`;
-- Footer Status Protocol v1 for bounded data-only contributions;
-- timer/UI cleanup on settlement, replacement, reload, session change, and shutdown.
+- `idle / working / done / error`; Run = `agent_start → agent_settled`.
+- Automatic retry/queued continuation remains one Run. After settlement, a user's manual “continue” starts a new Run; previous Runs remain in Session cumulative time, without counting idle user waiting.
+- Restoration prefers validated, branch-bound recorded durations, deduplicates completion records and covers queued/steering messages. Older history uses conservative persisted entry timing; idle summaries cannot extend an already finished answer.
+- `auren.completion.v1` records visible final-answer timing; `auren.run-timing.v1` records runs without a bindable visible answer. Both stay out of model context.
+- Context usage is cached by leaf/model/window and invalidated on message/turn/model/compact/tree events, sampled on render rather than before persistence.
+- Only working owns one 1 Hz render timer. No idle timer, watcher, database, process or server.
+- Responsive Footer prioritizes status/Context, then full `provider/model`; identities are omitted whole when they do not fit.
+- Other modules publish bounded data-only status over `auren:footer-status:v1` and its request channel. Auren alone renders it.
 
-The Footer prioritizes status and context, then displays the full `provider/model` identity before optional status labels and the session name. This distinguishes the same model served by different providers. When space is insufficient, the entire identity is omitted rather than truncated.
+## Markdown reading adaptation
 
-The Extension does not start a process, watcher, server, or idle timer. The only one-second timer exists while a run is working.
+A display-only transformer inserts needed separator spaces in simple closed spans such as `**注意：**下一步` or `这是**“重要”**内容`. It does not change stored messages, signatures, model context or `/copy` text. Code, escaped stars, links, incomplete and complex spans are preserved conservatively. Bounds: 128 KiB text, 8 KiB line, 512-character simple span. This is not a general Markdown repair engine; the native renderer still handles lists, tables, links and layout.
 
-## Temporary trial
+## Trial and notifications
 
-Choose `auren-dark`, `auren-forest`, `auren-ember`, or `auren-violet`, then use the same name in both Theme flags. From the repository root:
+Follow the isolated trial in [Adoption guide](../../docs/ADOPTION_GUIDE.md), rather than inheriting a developer's saved notification route/mode.
 
-```powershell
-pi `
-  --no-extensions `
-  --no-themes `
-  --theme ./themes/auren-dark.json `
-  --use-theme auren-dark `
-  --tui-mode fullscreen `
-  -e ./extensions/auren-ui/index.ts
-```
+BEL flags: `--auren-notify`, `--auren-notify=false`, `--auren-notify-after-ms 15000`. BEL sound belongs to the terminal/OS. Windows Terminal OSC 9;4 progress is platform-specific.
 
-`--no-extensions` avoids loading an installed Footer owner alongside the trial copy.
+ntfy defaults off. Routing lives outside the repository; `PI_NTFY_CONFIG` redirects it. `PI_AUREN_UI_STATE` redirects a versioned mode-only state file, normally `~/.pi/agent/state/auren-ui.json`.
 
-Flags:
+Commands: `/ntfy off|on|strong|stop|status|test`. Test messages visibly say “test / not task completion.” Sending even a test is an external side effect requiring user intent. Normal notification threshold defaults to 60 seconds; errors bypass it. Strong mode has six fixed five-second slots, skips overlapping sends, stops on failure and cancels on task/mode/session changes. Payloads contain a short session label/duration, not answers, working paths or error details.
 
-```text
---auren-notify
---auren-notify=false
---auren-notify-after-ms 15000
-```
+## Validation limits
 
-BEL volume belongs to the terminal/OS and cannot be adjusted by this Extension.
-
-## ntfy
-
-ntfy is off unless a valid private config exists and the user explicitly enables it. Copy `examples/ntfy.example.json` outside the repository, replace the deliberately invalid Topic, and set `PI_NTFY_CONFIG` for a trial. The fallback path is `~/.pi/agent/ntfy.json`.
-
-Commands:
-
-```text
-/ntfy off|on|strong|stop|status|test
-```
-
-Normal completion uses the configured threshold (default 60 seconds); errors bypass it. Strong mode has six fixed five-second slots, never queues overlapping requests, stops on failure, and is cancelled by a new task, mode change, or shutdown. Messages contain only a bounded Session label and duration—not responses, paths, Tool output, or error details.
-
-The saved state at `~/.pi/agent/state/auren-ui.json` contains only version and mode. `PI_AUREN_UI_STATE` can redirect it for isolated tests. Invalid state fails safe to off.
-
-## Footer protocol
-
-Other Extensions may emit `auren:footer-status:v1` and answer `auren:footer-status-request:v1`. Auren sanitizes IDs/labels/tone/priority, limits the registry to eight items, orders entries, and remains the sole renderer. See `docs/ARCHITECTURE.md`.
-
-## Limits
-
-Completion metadata is display-only but persists in Pi Session history. Session timing is an estimate. OSC progress may be ignored outside Windows Terminal. Read `docs/SECURITY_BOUNDARIES.md` before enabling ntfy.
+Run `npm test`: preferences/routes/agent directories are isolated before imports and standard Node transports are blocked unless explicitly mocked. This is a test guard, not an OS sandbox. Native component and synthetic SDK tests are not end-device delivery, full user TUI or future-Pi compatibility certification.

@@ -1,36 +1,25 @@
 # Agent-assisted adoption guide
 
-This guide is written for both adopters and the Agent helping them. Do not copy the whole repository into a global Pi directory.
+Do not copy this entire repository into a global Pi directory.
 
-## Adoption contract
+## Contract
 
-Before changing global configuration, the Agent must:
+Before global changes, read the installed Pi version's complete relevant Extension/TUI/Theme/settings/provider/MCP docs and their linked references. Inspect existing state narrowly without printing credentials; identify competing Footer/title/notifications, old/new search commands and a wrapper that overrides native MCP. Ask which modules are wanted, run isolated validation, show the exact file/settings diff, backup and rollback, then obtain explicit deployment approval. Publishing is separate authorization. Do not run `pi install`: this is not a Pi Package.
 
-1. read the installed Pi version's local documentation for Extensions, Themes, settings, TUI, and Windows behavior as relevant;
-2. inspect existing global and project configuration without printing credentials;
-3. identify already installed Extensions that own the footer, title, notifications, or the same slash commands;
-4. ask which optional modules are actually wanted;
-5. run a temporary trial and repository validation;
-6. show the exact destination files, settings-field diff, backup location, and rollback procedure;
-7. obtain explicit approval for global deployment.
+## Modules
 
-Do not run `pi install`; this repository is not a Pi Package.
+| Module | Network | State/default |
+| --- | --- | --- |
+| Four Auren Themes | none | explicit choice, colors only |
+| Auren UI | none except optional ntfy | loaded UI; display-only timing metadata |
+| ntfy | explicit sends | off, mode only; routing external |
+| OpenAI Web Search | enabled provider requests | off, empty reviewed targets |
+| Kiro helper | explicitly invoked extra request | off, empty reviewed targets |
+| Native MCP | enabled servers can connect at startup | disabled invalid-domain example |
+| Legacy constrained MCP | adapter-dependent | historical non-runnable template |
+| Safety/settings examples | none | manual merge, never blanket overwrite |
 
-## Choose modules
-
-| Module | Network | Persistent state | Default |
-|---|---:|---:|---|
-| Auren Dark / Forest / Ember / Violet | no | Pi theme setting only if deployed | explicit trial flag |
-| Auren UI status/timing/Footer/BEL | no | completion metadata in Pi sessions | enabled when loaded |
-| ntfy | yes, when enabled | mode only; routing separate | off |
-| Relay Search | provider request only, when enabled | enabled boolean | off; target list empty |
-| Constrained MCP template | yes, on calls/OAuth | adapter credential store | non-runnable template |
-| Safety prompt | no | global context file if deployed | manual merge |
-| Windows settings example | no | Pi settings | manual merge |
-
-Start with Auren Theme/UI. Add optional modules only when their benefit and data boundary are understood.
-
-## Validate the repository
+## Repository validation
 
 ```powershell
 npm ci --ignore-scripts
@@ -40,82 +29,62 @@ npm run validate:theme
 npm run audit:public
 ```
 
-Dependency installation is local to this clone. Inspect `package.json` and `package-lock.json` before installation in a high-trust environment.
+Review package/lock files before local dependency installation. The test runner establishes isolated route/state/Agent directories before imports and denies standard Node HTTP/TLS/socket connections unless explicitly mocked. New transport or child-process tests require separate review; this is not a security Sandbox.
 
-## Temporary Auren trial
+## Isolated Auren UI trial
 
-Choose one of `auren-dark`, `auren-forest`, `auren-ember`, or `auren-violet`. Use the same name for the JSON file and `--use-theme`. From this repository root:
-
-```powershell
-pi `
-  --no-extensions `
-  --no-themes `
-  --theme ./themes/auren-dark.json `
-  --use-theme auren-dark `
-  --tui-mode fullscreen `
-  -e ./extensions/auren-ui/index.ts
-```
-
-Check idle/working/done/error state, elapsed time, resizing, session changes, `/reload`, and shutdown. BEL is enabled by default for successful runs longer than 15 seconds and for errors. Disable it for a trial with `--auren-notify=false`.
-
-## Configure ntfy safely
-
-Copy `examples/ntfy.example.json` to a private path outside this repository and replace the deliberately invalid Topic with a random private Topic. The file format intentionally has no token field in this implementation.
-
-Point the trial process to it:
+In a separate PowerShell, from this clone:
 
 ```powershell
-$env:PI_NTFY_CONFIG = '<private-config-path>'
-pi --no-extensions -e ./extensions/auren-ui/index.ts
+$trial = Join-Path (Get-Location) '.tmp/auren-trial'
+New-Item -ItemType Directory -Force $trial | Out-Null
+$env:PI_CODING_AGENT_DIR = Join-Path $trial 'agent'
+$env:PI_AUREN_UI_STATE = Join-Path $trial 'auren.json'
+$env:PI_NTFY_CONFIG = Join-Path $trial 'no-route.json'
+$env:PI_OPENAI_WEB_SEARCH_STATE = Join-Path $trial 'openai.json'
+$env:PI_KIRO_WEB_SEARCH_STATE = Join-Path $trial 'kiro.json'
+pi --no-extensions --no-themes --theme ./themes/auren-dark.json --use-theme auren-dark --tui-mode fullscreen --auren-notify=false -e ./extensions/auren-ui/index.ts
 ```
 
-Inside Pi, use `/ntfy status` before `/ntfy test`, then explicitly select `/ntfy on` or `/ntfy strong`. Do not commit the routing file. Sending a test is an external side effect and requires user intent.
+Use a fresh trial directory if an earlier trial enabled anything; the routing path must not contain real notification config. A fresh isolated Agent directory has no stored account/model/MCP files, intentionally: do not copy credential files to make it work. It does not erase credentials or other configuration inherited through environment variables, nor provide an OS network sandbox. Review the installed CLI's startup behavior and inherited environment without printing secrets, and do not submit a model prompt or enable networking until that separate trial is authorized. Idle/render checks can be done first; an authenticated model or real server trial requires a separately reviewed, explicit setup. Close the trial shell afterward so its environment does not affect daily Pi.
 
-## Configure Relay Search
+Choose another theme by changing both theme flags consistently. Check resizing, status/timing, Context, Markdown, metadata, session change/reload and shutdown. BEL is disabled above; normal production BEL defaults to a threshold of 15 seconds and immediate errors.
 
-The committed `SEARCH_TARGETS` list is empty. Do not infer capability from a model family name, image support, or a provider badge. After a public, bounded provider test, add only the exact provider, model ID, API, and accepted tool schema to `extensions/relay-search/config.ts`.
+## ntfy
 
-Then load the Extension temporarily and use:
+Create real config outside this clone using `examples/ntfy.example.json` only as a shape. Never commit a real Topic. First inspect `/ntfy status`; `/ntfy test` requires explicit sending intent and clearly labels itself as a test, not completion. Set `on/strong` only after route/privacy/delivery review. Isolated tests do not prove device delivery.
+
+## Two independent search routes
+
+The committed registries are empty. Configure exact reviewed source-level targets only after a public, bounded test with explicit cost authorization; no inference from model family, context declaration, image capability or self-description.
+
+OpenAI: `extensions/openai-web-search/config.ts`, `examples/openai-web-search-targets.example.ts`, `/openai-web models|status|on|off`. It adds a hosted declaration/guidance to the main request, not a codemode local executor. It does not define `tools.openai_web_search()`.
+
+Helper: `extensions/kiro-web-search/config.ts`, `examples/kiro-web-search-targets.example.ts`, `/kiro-web models|status|on|off`, tool `kiro_web_search`. Only its narrow adaptive/low streamed Anthropic hosted-search contract is supported; identity/endpoint/authentication/compatibility must be assessed per target. The missing-reference exception and User-Agent requirement stay off/absent unless independently justified.
+
+Factories allow explicit reviewed registries in local entry points; no hidden environment target override exists. Redirect state into the trial folder before slash commands. Tool declaration/HTTP 200/enabled badge is not execution evidence. Verify returned public source URLs separately. Failures should disable the experiment, not cause uncontrolled schema retries. Cancellation may still be billed.
+
+When replacing an older Relay copy, save its source/current preference and remove it from discovery before loading the new route. No runtime aliases or fallback preference reads ship; migration is an explicit adopter action. Do not run old/new copies together.
+
+## MCP
+
+Prefer [official built-in MCP](NATIVE_MCP.md). The committed `examples/mcp.example.json` is disabled and invalid, not ready-to-connect config. Review complete server identity, protocol, auth, access/mutation, project trust and revocation before adding an entry. Use native `/mcp` for status and authorized reconnect/login, discover exact tools/schemas through codemode/tool_search. Keep domain read/write policy separate.
+
+The historical constrained template is preserved for reference, not certified on this new baseline. A `/mcp`-registering adapter replaces built-in session support; do not assume it shares native config, CLI or credentials. Avoid wrappers without a concrete reviewed gap.
+
+## Deployment and rollback
+
+Resolve the adopter's user directory; never hard-code a username. Copy only chosen themes and all required modules within each chosen Extension directory. For example:
 
 ```text
-/relay-search models
-/relay-search on
-/relay-search status
-/relay-search off
+themes/selected.json                 → user theme directory
+extensions/auren-ui/*.ts             → chosen Auren Extension directory
+extensions/openai-web-search/*.ts    → optional OpenAI directory
+extensions/kiro-web-search/*.ts       → optional helper directory
+examples/mcp.example.json            → reviewed/merged native config, never copied blindly
+prompts/APPEND_SYSTEM.md              → reviewed merge, not full overwrite
 ```
 
-`web_search appended` proves request declaration, not search execution. Verify resulting sources independently. Unsupported-tool responses should lead to disabling the experiment, not automatic schema retries.
+Do not copy tests, node_modules, package development config, invalid examples or this repository's whole root into production. Preserve user theme/search/notification preferences and unrelated settings. `context-cache.ts`, `markdown-reading.ts`, `citations.ts`, helper `config.ts/links.ts` are runtime dependencies: copying index.ts alone is insufficient.
 
-## Configure the MCP template
-
-The committed endpoints use the reserved `.invalid` domain and must never be used as real configuration.
-
-1. Review `extensions/constrained-mcp/README.md` and the pinned dependency.
-2. Copy `servers.example.ts` to the ignored local file `servers.ts` and replace the complete example registry.
-3. Copy `index.example.ts` to the ignored local file `index.ts`, changing its import to `./servers.ts`.
-4. Install the optional dependency with `npm ci` inside `extensions/constrained-mcp` after reviewing its package and lockfile.
-5. Keep secrets in environment variables or the adapter's OS credential store.
-6. Run a temporary `pi --no-extensions -e .../index.ts` test.
-
-Never add arbitrary project/host MCP config discovery merely for convenience.
-
-## Global deployment outline
-
-The usual Pi global directory is `~/.pi/agent`; resolve it from the current user rather than hard-coding a username.
-
-A deployment may selectively copy:
-
-```text
-themes/auren-*.json          → ~/.pi/agent/themes/ (copy only selected themes)
-extensions/auren-ui/*.ts     → ~/.pi/agent/extensions/auren-ui/
-extensions/relay-search/*.ts → ~/.pi/agent/extensions/relay-search/
-prompts/APPEND_SYSTEM.md     → merge/review with ~/.pi/agent/APPEND_SYSTEM.md
-```
-
-Do not overwrite an existing APPEND_SYSTEM or settings file wholesale. Merge reviewed sections/fields and preserve unrelated configuration.
-
-For Windows, `examples/settings.windows.json` is a shape, not a blindly copied file. Detect the actual Git Bash path first. If `defaultTools` changes, fully exit and restart Pi: `/reload` may preserve the current active tool list.
-
-## Rollback
-
-Before deployment, copy every affected file to a timestamped backup outside automatic Extension discovery. Record checksums. Roll back by restoring the exact prior files or moving newly added Extension directories outside discovery, then fully restart Pi when tool defaults changed.
+Back up affected source, record checksums, identify new files/commands and get approval. Keep backup outside Extension discovery. Rollback should save the current state, then restore the complete previous chosen directories or move new ones out—never mix generations or overwrite unrelated config/Session history. Reload/restart according to the installed API; changes to default tools can require a fully fresh process. Revoke OAuth grants only by explicit intent through the service/native tools.

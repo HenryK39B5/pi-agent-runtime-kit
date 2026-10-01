@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
-import { appendHostedSearch, createRelaySearchExtension, evaluateSearch, searchTarget } from "../../extensions/relay-search/index.ts";
-import type { SearchTarget } from "../../extensions/relay-search/config.ts";
+import { appendHostedSearch, createOpenAIWebSearchExtension, evaluateSearch, searchTarget } from "../../extensions/openai-web-search/index.ts";
+import type { SearchTarget } from "../../extensions/openai-web-search/config.ts";
 
 const model = { provider: "example-provider", id: "search-model-alpha", api: "openai-responses" };
 const secondModel = { ...model, id: "search-model-beta" };
@@ -14,7 +14,7 @@ const targets: readonly SearchTarget[] = [
 const configuredTarget = (value: any) => searchTarget(value, targets);
 const configuredEvaluate = (value: unknown, valueModel: any) => evaluateSearch(value, valueModel, targets);
 const configuredAppend = (value: unknown, valueModel: any) => appendHostedSearch(value, valueModel, targets);
-const extension = createRelaySearchExtension(targets);
+const extension = createOpenAIWebSearchExtension(targets);
 
 const payload = (modelId = model.id) => ({ model: modelId, input: [], tools: [{ type: "function", name: "read" }, { type: "function", name: "bash" }], include: ["reasoning.encrypted_content"], store: false, stream: true });
 
@@ -67,8 +67,8 @@ test("legacy hosted search is not duplicated", () => {
 test("extension persists opt-in, publishes status and provides argument completions", async () => {
   mkdirSync(resolve(".tmp"), { recursive: true });
   const dir = mkdtempSync(resolve(".tmp/relay-state-"));
-  const oldState = process.env.PI_RELAY_SEARCH_STATE;
-  process.env.PI_RELAY_SEARCH_STATE = resolve(dir, "relay.json");
+  const oldState = process.env.PI_OPENAI_WEB_SEARCH_STATE;
+  process.env.PI_OPENAI_WEB_SEARCH_STATE = resolve(dir, "relay.json");
   try {
     const handlers = new Map<string, Function>();
     const busHandlers = new Map<string, Function[]>();
@@ -83,7 +83,7 @@ test("extension persists opt-in, publishes status and provides argument completi
         busHandlers.get(channel)?.forEach(fn => fn(data));
       },
     };
-    extension({ events, on: (event: string, fn: Function) => handlers.set(event, fn), registerCommand: (_: string, cmd: any) => { command = cmd; } } as any);
+    extension({ events, on: (event: string, fn: Function) => handlers.set(event, fn), registerEntryRenderer() {}, registerMarkdownTransformer() {}, registerCommand: (_: string, cmd: any) => { command = cmd; } } as any);
     const emit = (event: string) => handlers.get(event)!({ payload: payload(ctx.model.id) }, ctx);
     emit("session_start"); emit("agent_start");
     assert.equal(emit("before_provider_request"), undefined);
@@ -105,15 +105,15 @@ test("extension persists opt-in, publishes status and provides argument completi
     emit("session_start"); emit("agent_start");
     assert.ok(emit("before_provider_request"), "saved on mode should survive session replacement");
     events.emit("auren:footer-status-request:v1", { version: 1 });
-    assert.equal(busEvents.at(-1)?.data.id, "relay-search");
+    assert.equal(busEvents.at(-1)?.data.id, "openai-web-search");
     assert.equal(busEvents.at(-1)?.data.active, true);
     await command.handler("off", ctx);
     assert.equal(emit("before_provider_request"), undefined);
     emit("session_shutdown");
     assert.equal(busEvents.at(-1)?.data.active, false);
   } finally {
-    if (oldState === undefined) delete process.env.PI_RELAY_SEARCH_STATE;
-    else process.env.PI_RELAY_SEARCH_STATE = oldState;
+    if (oldState === undefined) delete process.env.PI_OPENAI_WEB_SEARCH_STATE;
+    else process.env.PI_OPENAI_WEB_SEARCH_STATE = oldState;
     rmSync(dir, { recursive: true });
   }
 });

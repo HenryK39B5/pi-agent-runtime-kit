@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "public-docs-example": {
+      "url": "https://mcp.example.invalid/mcp",
+      "headers": { "Authorization": "${EXAMPLE_MCP_AUTH_HEADER}" },
+      "description": "Replace with a reviewed server and its actual capabilities",
+      "enabled": false
+    }
+  }
+}

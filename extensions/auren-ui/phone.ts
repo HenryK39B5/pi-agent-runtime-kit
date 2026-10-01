@@ -20,8 +20,8 @@ export function parsePhoneConfig(value: unknown): PhoneConfig {
 export function phoneMessage(session: string | undefined, duration: number, test = false) {
   const name = Array.from((session ?? "").replace(/[\x00-\x1f\x7f-\x9f\u202a-\u202e\u2066-\u2069]/g, " ").trim() || "未命名会话");
   return {
-    title: `Pi · ${name.slice(0, 48).join("")}${name.length > 48 ? "…" : ""}`,
-    message: `本轮已结束 · 耗时 ${formatDuration(duration)}${test ? "（模拟测试）" : ""}`,
+    title: `${test ? "Pi 【测试】" : "Pi"} · ${name.slice(0, 48).join("")}${name.length > 48 ? "…" : ""}`,
+    message: test ? `通知链路测试 · 模拟耗时 ${formatDuration(duration)}（不是任务完成）` : `本轮已结束 · 耗时 ${formatDuration(duration)}`,
   };
 }
 

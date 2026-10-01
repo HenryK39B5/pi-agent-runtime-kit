@@ -19,6 +19,10 @@ test("phone messages use short session labels and neutral wording", () => {
   assert.deepEqual(phoneMessage(undefined, 65000), { title: "Pi · 未命名会话", message: "本轮已结束 · 耗时 1m 5s" });
   assert.equal(phoneMessage("x\ny", 0).title, "Pi · x y");
   assert.ok(phoneMessage("中".repeat(100), 0).title.endsWith("…"));
+  const trial = phoneMessage("Fixture", 65000, true);
+  assert(trial.title.includes("【测试】"));
+  assert(trial.message.includes("不是任务完成"));
+  assert(!trial.message.includes("本轮已结束"));
 });
 
 test("saved enabled mode remains inactive when ntfy routing is unavailable", async () => {

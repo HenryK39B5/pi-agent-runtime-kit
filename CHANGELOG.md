@@ -1,6 +1,18 @@
 # Changelog
 
-## 0.2.0 — Unreleased
+## Maintenance reference update — Unreleased (2026-10-01)
+
+- align local development packages with exact Pi 0.99.2 and the dependency minimum Node 22.19.0; current validation uses Node 24.13.1;
+- import generic Auren recorded-run/branch/queued/steering/no-answer restoration, event-invalidated Context caching and bounded display-only punctuation-adjacent emphasis handling;
+- isolate notification/three preferences/Agent paths before test imports; deny standard real networking, fail even on swallowed attempts, and visibly label test notifications;
+- replace Relay identity with openai-web-search and /openai-web, retain an empty public target registry, add request-local guidance and response/answer-bound native Markdown URL source entries;
+- add generic kiro-web-search, /kiro-web and kiro_web_search with an empty reviewed target registry, one query-only bounded helper, strict end/association/auth-origin/payload checks, cancellation, usage, URL cleaning and source links;
+- keep User-Agent requirements optional per reviewed target and the absent-reference exception off unless explicitly evidenced; no private accounts, endpoints, model identity, compatibility defaults or live artifacts are synchronized;
+- prefer native MCP guidance/disabled invalid-domain example, retaining the constrained adapter only as a historical non-default template without new Runtime/OAuth certification;
+- validate this kit independently: PowerShell and confirmed Git Bash/Windows Node each 149/149 isolated tests, strict types, four themes, public-tree audit and diff checks; no real provider/notification/MCP/OAuth requests;
+- source-only maintenance: no global deployment, npm/GitHub Release or blog changes. GitHub source commit/push was separately authorized after local validation. Native component/mock checks are not user TUI/click/live-route certification.
+
+## 0.2.0 — Earlier unreleased theme/footer work
 
 - show the full `provider/model` identity in Auren Footer, reserving space ahead of optional statuses and session name; omit the whole identity if it does not fit;
 - add Auren Forest, Ember, and Violet alongside Auren Dark;

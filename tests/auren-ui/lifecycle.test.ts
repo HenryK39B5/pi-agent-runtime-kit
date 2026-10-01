@@ -22,7 +22,7 @@ function harness(t: any, mode = "tui") {
     emit: (channel: string, data: unknown) => busHandlers.get(channel)?.forEach(handler => handler(data)),
   };
   const pi: any = {
-    events, registerFlag() {}, registerCommand() {}, registerEntryRenderer() {}, getFlag: () => true,
+    events, registerFlag() {}, registerCommand() {}, registerEntryRenderer() {}, registerMarkdownTransformer() {}, getFlag: () => true,
     getSessionName: () => "test", on: (event: string, handler: Function) => handlers.set(event, [...(handlers.get(event) ?? []), handler]),
     appendEntry: (customType: string, data: any) => {
       if (failAppend) throw new Error("synthetic write failure");
@@ -30,7 +30,7 @@ function harness(t: any, mode = "tui") {
     },
   };
   const ctx: any = {
-    mode, cwd: "C:/fixture", getContextUsage: () => undefined,
+    mode, cwd: "E:/fixture", getContextUsage: () => undefined,
     sessionManager: { getEntries: () => entries, getBranch: () => entries, getLeafId: () => entries.at(-1)?.id ?? null },
     ui: {
       notify() {}, setTitle: (s: string) => titles.push(s),
@@ -73,7 +73,7 @@ test("Footer host accepts event contributions, redraws and clears them on sessio
   const h = harness(t);
   const footer = h.footers.at(-1);
   const before = h.renders();
-  h.events.emit("auren:footer-status:v1", { version: 1, id: "relay-search", active: true, label: "web", tone: "accent", priority: 80 });
+  h.events.emit("auren:footer-status:v1", { version: 1, id: "openai-web-search", active: true, label: "web", tone: "accent", priority: 80 });
   assert.equal(h.renders(), before + 1);
   assert.ok(footer.render(160)[0].includes("web"));
   h.events.emit("auren:footer-status:v1", { version: 9, id: "bad", active: true, label: "bad" });

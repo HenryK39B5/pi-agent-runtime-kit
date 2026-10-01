@@ -8,6 +8,9 @@ export interface AurenCompletionEntryV1 {
   durationMs: number;
   assistantEntryId: string;
   outcome: "done" | "error";
+  /** Optional lifecycle boundaries added without changing the v1 display contract. */
+  runStartLeafId?: string | null;
+  runEndLeafId?: string | null;
 }
 
 type SessionEntry = ReturnType<ExtensionContext["sessionManager"]["getBranch"]>[number];
@@ -24,7 +27,8 @@ export function isCompletionEntryData(value: unknown): value is AurenCompletionE
     data.durationMs >= 0 &&
     typeof data.assistantEntryId === "string" &&
     data.assistantEntryId.length > 0 &&
-    (data.outcome === "done" || data.outcome === "error")
+    (data.outcome === "done" || data.outcome === "error") &&
+    [data.runStartLeafId, data.runEndLeafId].every(id => id === undefined || id === null || (typeof id === "string" && id.length > 0))
   );
 }
 
