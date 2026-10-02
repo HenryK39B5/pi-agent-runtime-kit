@@ -1,5 +1,13 @@
 # Changelog
 
+## Pi 1.0.0 reference baseline — Unreleased (2026-10-02)
+
+- update the three Pi development packages and lockfile from exact 0.99.2 to exact 1.0.0, with dependency lifecycle scripts disabled; keep Node >=22.19.0, TypeBox and TypeScript declarations unchanged;
+- retain runtime implementations, all four themes, the empty production search registries, default-off preferences and disabled native MCP examples;
+- refresh current documentation and record codemode presence-check changes, official prompt/memory improvements, MCP OAuth boundaries and optional image-generation/login features in `docs/PI_1_0_0_UPDATE.md`;
+- validate with this clone's pinned dependencies: PowerShell and confirmed Git Bash/Windows Node each 149/149 isolated tests, strict types, all four themes, 91-file public-tree audit, dependency identity, relative documentation links and diff checks pass; the earlier installed-SDK preflight is separate evidence, not a substitute for clone-local regression;
+- local source-only update: no global deployment, real provider/notification/MCP/OAuth requests, commit, push, Release or blog changes; actual TUI/click/session and endpoint behavior remain adopter validation.
+
 ## Maintenance reference update — Unreleased (2026-10-01)
 
 - align local development packages with exact Pi 0.99.2 and the dependency minimum Node 22.19.0; current validation uses Node 24.13.1;

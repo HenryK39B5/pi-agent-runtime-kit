@@ -35,4 +35,4 @@ Output is a JSON object plus a Markdown source list, not a promise that the enti
 
 ## Evidence
 
-Pinned Pi 0.99.2 tests use invalid endpoints, explicit fixture registries, in-memory credentials/sessions and mocked HTTP. They cover protocol, limits, cancellation, failure, direct/codemode loops and strict default-off behavior. No real account, private target, gateway identity, live-search result or authenticated billing claim is published here.
+Pinned Pi 1.0.0 tests use invalid endpoints, explicit fixture registries, in-memory credentials/sessions and mocked HTTP. They cover protocol, limits, cancellation, failure, direct/codemode loops and strict default-off behavior. No real account, private target, gateway identity, live-search result or authenticated billing claim is published here.

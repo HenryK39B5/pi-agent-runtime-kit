@@ -1,4 +1,6 @@
-# Maintenance update — 2026-10-01
+# Maintenance update — 2026-10-01 (historical)
+
+This report preserves the 0.99.2 maintenance-stage facts. The current pinned reference baseline is Pi 1.0.0; see [Pi 1.0.0 update](PI_1_0_0_UPDATE.md) and [Compatibility](COMPATIBILITY.md) for the 2026-10-02 dependency/documentation-only follow-up. Do not rewrite the historical results below as new-version certification.
 
 This is a sanitized reference update, not a copy of a private runtime, an installer, a published release, or evidence that any adopter's provider works.
 

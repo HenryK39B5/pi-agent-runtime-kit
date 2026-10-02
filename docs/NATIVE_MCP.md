@@ -1,6 +1,12 @@
 # Official built-in MCP baseline
 
-For the current Pi 0.99.2 reference baseline, prefer built-in MCP unless a specific reviewed gap justifies a wrapper. Read the installed package's complete `docs/mcp.md`, `docs/extensions.md`, relevant `docs/sdk.md` and linked security/configuration documentation before adoption. This kit does not configure any real server or start OAuth.
+For the current Pi 1.0.0 reference baseline, prefer built-in MCP unless a specific reviewed gap justifies a wrapper. Read the installed package's complete `docs/mcp.md`, `docs/extensions.md`, relevant `docs/sdk.md` and linked security/configuration documentation before adoption. This kit does not configure any real server or start OAuth.
+
+## Pi 1.0.0 OAuth and recovery notes
+
+The upstream release hardens authorization-response issuer checks, preserves granted scopes during additional consent, handles empty optional OAuth fields, and keys credentials by server name plus URL. Old URL-only credentials move to the first server that uses them; avoid gratuitous server renames or duplicate-account entries during adoption. Do not inspect, export or manually rewrite OAuth token stores. If sign-in is required, use the native workflow only with explicit authorization.
+
+`oauth.authServerMetadataUrl` is available when a reviewed server advertises missing or incorrect authorization-server metadata; it is not a default setting to add to working connections. Deferred `tool_search` tools also have an upstream resume/reload restoration fix. These are reviewed upstream changes, not actual OAuth/restore certification by this kit. See [Pi 1.0.0 update](PI_1_0_0_UPDATE.md).
 
 ## Safe shape
 

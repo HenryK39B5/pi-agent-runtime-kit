@@ -29,4 +29,4 @@ URLs preserve public query/fragment while rejecting signatures, credentials, use
 
 Only the matching current model contributes `web:openai` or muted `web:off`; other models remove this contribution. Switching models does not reset the saved choice or the other search route. Auren remains sole Footer owner. Temporary annotations clear on reset/off/settlement/shutdown; persisted sources remain readable after disabling search.
 
-Pi 0.99.2 pinned-dependency synthetic tests cover declaration/guidance, source association and context exclusion. No configured public target or live-route certification ships with this module.
+Pi 1.0.0 pinned-dependency synthetic tests cover declaration/guidance, source association and context exclusion. No configured public target or live-route certification ships with this module.

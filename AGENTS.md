@@ -34,6 +34,6 @@ npm run validate:theme
 npm run audit:public
 ```
 
-Current pinned source baseline is Pi 0.99.2; the changed source is not certified against the old 0.85.1 baseline. `npm test` isolates notification/preferences/Agent paths before imports and blocks standard real networking. No public Provider/helper targets are configured, and no hidden test environment flag may enable production targets.
+Current pinned source baseline is Pi 1.0.0; see `docs/PI_1_0_0_UPDATE.md` for this source-only upgrade and its validation boundaries; the changed source is not certified against the old 0.85.1 baseline. `npm test` isolates notification/preferences/Agent paths before imports and blocks standard real networking. No public Provider/helper targets are configured, and no hidden test environment flag may enable production targets.
 
 For `extensions/constrained-mcp`, install its pinned dependency separately only after explicitly choosing and reviewing that historical optional template. Do not load a `/mcp`-registering wrapper alongside native MCP blindly. SDK/mock validation is not real TUI, notification delivery or live-route certification.

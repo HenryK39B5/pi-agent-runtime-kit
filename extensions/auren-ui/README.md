@@ -1,6 +1,6 @@
 # Auren UI
 
-Event-driven Pi 0.99.2 reference source. It owns the single Footer, title, progress, completion metadata and optional notifications.
+Event-driven Pi 1.0.0 reference source; the 2026-10-02 upgrade changes dependency/documentation baselines, not this runtime implementation. See [upgrade scope](../../docs/PI_1_0_0_UPDATE.md). It owns the single Footer, title, progress, completion metadata and optional notifications.
 
 ## Behavior
 

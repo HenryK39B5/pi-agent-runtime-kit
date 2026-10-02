@@ -4,7 +4,7 @@
 
 本仓库**不是** Pi 官方项目、npm/Pi Package、一键安装器或私人 Runtime 的镜像。不会附带任何可直接使用的账户、Provider 目标、服务注册表、凭据或私人部署记录。
 
-当前源码/开发依赖基线为 **Pi 0.99.2**；本轮验证环境是 Windows 11、Node 24.13.1、PowerShell 与 Git Bash/Windows Node。Node 最低版本随依赖要求为 22.19.0，但本轮没有重新认证 Node 22。旧 0.85.1 为历史基线，不代表新源码仍兼容。验证范围见 [Compatibility](docs/COMPATIBILITY.md)。
+2026-10-02 当前源码/开发依赖基线为 **Pi 1.0.0**；本轮验证环境是 Windows 11、Node 24.13.1、PowerShell 与 Git Bash/Windows Node。Node 最低版本随依赖要求为 22.19.0，但本轮没有重新认证 Node 22。旧 0.85.1 为历史基线，不代表新源码仍兼容。验证范围见 [Compatibility](docs/COMPATIBILITY.md)，本次仅依赖/文档同步见 [Pi 1.0.0 update](docs/PI_1_0_0_UPDATE.md)。
 
 ## 包含哪些内容
 
